@@ -1,0 +1,25 @@
+{
+  "name": "schedule-api",
+  "version": "1.0.0",
+  "description": "Code for basic REST API to work with schedule-site project",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BMeyer-18/schedule-api.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/BMeyer-18/schedule-api/issues"
+  },
+  "homepage": "https://github.com/BMeyer-18/schedule-api#readme",
+  "dependencies": {
+    "express": "^5.2.1",
+    "pg": "^8.22.0"
+  }
+}
