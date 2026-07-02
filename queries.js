@@ -10,64 +10,94 @@ const pool = new Pool ({
     port: Number(process.env.DB_PORT),
 });
 
+// GET: / & /api & /api/v1 | readMetaInfo()
+const readMetaInfo = async (request, response) => {
+    response.json({ info: 'REST API for scheduling site using Node.js, Express, and Postgres' });
+};
 
-// GET: / | displayHome()
-
-
-// GET: /users | getUsers()
-const getUsers = async (request, response) => {
+// GET: /api/v1/:event | readEventResponses()
+const readEventResponses = async (request, response) => {
+    const event = request.params.event;
     try {
-        const results = await pool.query('SELECT * FROM schedules ORDER BY id ASC');
+        const results = await pool.query(
+            'SELECT * FROM schedules WHERE event = $1 ORDER BY id ASC',
+            [event]
+        );
         response.status(200).json(results.rows);
     } catch (error) {
         throw error;
     }
 };
 
-// GET: /users/:id | getUserById()
-const getUserById = async (request, response) => {
-    const id = parseInt(request.params.id, 10);
+// GET: /api/v1/:event/:name | readUserResponse()
+const readUserResponse = async (request, response) => {
+    const event = request.params.event;
+    const name = request.params.name;
     try {
-        const results = await pool.query('SELECT * FROM schedules WHERE id = $1', [id]);
+        const results = await pool.query(
+            'SELECT * FROM schedules WHERE event = $1 AND name = $2',
+            [event, name]
+        );
         response.status(200).json(results.rows);
     } catch (error) {
         throw error;
     }
 };
 
-// POST: /users | createUser()
-const createUser = async (request, response) => {
-    const { name, event, availability } = request.body;
+// POST: /api/v1/:event | createUserResponse()
+const createUserResponse = async (request, response) => {
+    const event = request.params.event;
+    const { name, availability } = request.body;
     try {
         const results = await pool.query(
             'INSERT INTO schedules (name, event, availability) VALUES ($1, $2, $3) RETURNING *',
             [name, event, availability]
         );
-        response.status(201).send(`User added with ID ${results.rows[0].id}`)
+        response.status(201).json({ info: `User ${results.rows[0].name} added to event ${results.rows[0].event}` });
     } catch (error) {
         throw error;
     }
 };
 
-// PUT: /users/:id | updateUser()
-const updateUser = async (request, response) => {
-    const id = parseInt(request.params.id, 10);
-    const { name, event, availability } = request.body;
+// PUT: /api/v1/:event | updateUserResponse()
+const updateUserResponse = async (request, response) => {
+    const event = request.params.event;
+    const { name, availability } = request.body;
     try {
-        await pool.query('UPDATE schedules SET name = $1, event = $2, availability = $3 WHERE id = $4',
-            [name, event, availability, id]);
-        response.status(200).send(`User modified with ID: ${id}`);
+        const results = await pool.query(
+            'UPDATE schedules SET availability = $1 WHERE name = $2 AND event = $3',
+            [availability, name, event]
+        );
+        response.status(200).json({ info: `Updated user ${results.rows[0].name} for event ${results.rows[0].event}` });
     } catch (error) {
         throw error;
     }
 };
 
-// DELETE: /users/:id | deleteUser()
-const deleteUser = async (request, response) => {
-    const id = parseInt(request.params.id, 10);
+// DELETE: /api/v1/:event | deleteEventResponses()
+const deleteEventResponses = async (request, response) => {
+    const event = request.params.event;
     try {
-        await pool.query('DELETE FROM schedules WHERE id = $1', [id]);
-        response.status(200).send(`User deleted with ID: ${id}`);
+        await pool.query(
+            'DELETE FROM schedules WHERE event = $1',
+            [event]
+        );
+        response.status(200).json({ info: `Deleted all users from event ${event}` });
+    } catch (error) {
+        throw error;
+    }
+};
+
+// DELETE: /api/v1/:event/:name | deleteUserResponse()
+const deleteUserResponse = async (request, response) => {
+    const event = request.params.event;
+    const name = request.params.name;
+    try {
+        await pool.query(
+            'DELETE FROM schedules WHERE event = $1 AND name = $2',
+            [event, name]
+        );
+        response.status(200).json({ info: `Deleted user ${user} from event ${event}` });
     } catch (error) {
         throw error;
     }
@@ -75,9 +105,11 @@ const deleteUser = async (request, response) => {
 
 
 export {
-    getUsers,
-    getUserById,
-    createUser,
-    updateUser,
-    deleteUser,
+    readMetaInfo,
+    readEventResponses,
+    readUserResponse,
+    createUserResponse,
+    updateUserResponse,
+    deleteEventResponses,
+    deleteUserResponse
 };
