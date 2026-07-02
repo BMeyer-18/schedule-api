@@ -16,12 +16,13 @@ app.use(
 app.get('/', db.readMetaInfo);
 app.get('/api', db.readMetaInfo);
 app.get('/api/v1', db.readMetaInfo);
-app.get('/api/v1/:event', db.readEventResponses);
-app.get('/api/v1/:event/:name', db.readUserResponse);
-app.post('/api/v1/:event', db.createUserResponse);
-app.put('/api/v1/:event', db.updateUserResponse);
-app.delete('/api/v1/:event', db.deleteEventResponses);
-app.delete('/api/v1/:event/:name', db.deleteUserResponse);
+app.get('/api/v1/schedules', db.readAllResponses);
+app.get('/api/v1/schedules/:event', db.readEventResponses);
+app.get('/api/v1/schedules/:event/:name', db.readUserResponse);
+app.post('/api/v1/schedules/:event', db.createUserResponse);
+app.put('/api/v1/schedules/:event', db.updateUserResponse);
+app.delete('/api/v1/schedules/:event', db.deleteEventResponses);
+app.delete('/api/v1/schedules/:event/:name', db.deleteUserResponse);
 
 app.listen(port, () => {
     console.log(`App running on port ${port}.`)

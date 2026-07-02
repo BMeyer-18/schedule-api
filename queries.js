@@ -15,7 +15,19 @@ const readMetaInfo = async (request, response) => {
     response.json({ info: 'REST API for scheduling site using Node.js, Express, and Postgres' });
 };
 
-// GET: /api/v1/:event | readEventResponses()
+//GET: /api/v1/schedules | readAllResponses()
+const readAllResponses = async (request, response) => {
+    try {
+        const results = await pool.query(
+            'SELECT * FROM schedules ORDER BY id ASC'
+        )
+        response.status(200).json(results.rows);
+    } catch (error) {
+        throw error;
+    }
+};
+
+// GET: /api/v1/schedules/:event | readEventResponses()
 const readEventResponses = async (request, response) => {
     const event = request.params.event;
     try {
@@ -29,7 +41,7 @@ const readEventResponses = async (request, response) => {
     }
 };
 
-// GET: /api/v1/:event/:name | readUserResponse()
+// GET: /api/v1/schedules/:event/:name | readUserResponse()
 const readUserResponse = async (request, response) => {
     const event = request.params.event;
     const name = request.params.name;
@@ -44,7 +56,7 @@ const readUserResponse = async (request, response) => {
     }
 };
 
-// POST: /api/v1/:event | createUserResponse()
+// POST: /api/v1/schedules/:event | createUserResponse()
 const createUserResponse = async (request, response) => {
     const event = request.params.event;
     const { name, availability } = request.body;
@@ -59,7 +71,7 @@ const createUserResponse = async (request, response) => {
     }
 };
 
-// PUT: /api/v1/:event | updateUserResponse()
+// PUT: /api/v1/schedules/:event | updateUserResponse()
 const updateUserResponse = async (request, response) => {
     const event = request.params.event;
     const { name, availability } = request.body;
@@ -74,7 +86,7 @@ const updateUserResponse = async (request, response) => {
     }
 };
 
-// DELETE: /api/v1/:event | deleteEventResponses()
+// DELETE: /api/v1/schedules/:event | deleteEventResponses()
 const deleteEventResponses = async (request, response) => {
     const event = request.params.event;
     try {
@@ -88,7 +100,7 @@ const deleteEventResponses = async (request, response) => {
     }
 };
 
-// DELETE: /api/v1/:event/:name | deleteUserResponse()
+// DELETE: /api/v1/schedules/:event/:name | deleteUserResponse()
 const deleteUserResponse = async (request, response) => {
     const event = request.params.event;
     const name = request.params.name;
@@ -106,6 +118,7 @@ const deleteUserResponse = async (request, response) => {
 
 export {
     readMetaInfo,
+    readAllResponses,
     readEventResponses,
     readUserResponse,
     createUserResponse,
