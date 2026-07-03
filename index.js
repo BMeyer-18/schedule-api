@@ -20,7 +20,8 @@ app.get('/api/v1/schedules', db.readAllResponses);
 app.get('/api/v1/schedules/:event', db.readEventResponses);
 app.get('/api/v1/schedules/:event/:name', db.readUserResponse);
 app.post('/api/v1/schedules/:event', db.createUserResponse);
-app.put('/api/v1/schedules/:event', db.updateUserResponse);
+app.patch('/api/v1/schedules/:event', db.updateUserResponse);
+app.put('/api/v1/schedules/:event', db.updateOrCreateUserResponse);
 app.delete('/api/v1/schedules/:event', db.deleteEventResponses);
 app.delete('/api/v1/schedules/:event/:name', db.deleteUserResponse);
 

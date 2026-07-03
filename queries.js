@@ -72,10 +72,38 @@ const createUserResponse = async (request, response) => {
     }
 };
 
-// PUT: /api/v1/schedules/:event | updateUserResponse()
+// PATCH: /api/v1/schedules/:event | updateUserResponse()
 const updateUserResponse = async (request, response) => {
     const event = request.params.event.toLowerCase();
     const name = request.body.name.toLowerCase();
+
+    if((await pool.query('SELECT * FROM schedules WHERE name = $1 AND event = $2', [name, event])).rows.length === 0) {
+        response.status(404).json({ info: `user ${name} at event ${event} not found` });
+        return;
+    }
+
+    const availability = request.body.availability;
+    try {
+        const results = await pool.query(
+            'UPDATE schedules SET availability = $1 WHERE name = $2 AND event = $3 RETURNING *',
+            [availability, name, event]
+        );
+        response.status(200).json({ info: `Updated user ${results.rows[0].name} for event ${results.rows[0].event}` });
+    } catch (error) {
+        throw error;
+    }
+};
+
+// PUT: /api/v1/schedules/:event | updateOrCreateUserResponse()
+const updateOrCreateUserResponse = async (request, response) => {
+    const event = request.params.event.toLowerCase();
+    const name = request.body.name.toLowerCase();
+
+    if((await pool.query('SELECT * FROM schedules WHERE name = $1 AND event = $2', [name, event])).rows.length === 0) {
+        createUserResponse(request, response);
+        return;
+    }
+
     const availability = request.body.availability;
     try {
         const results = await pool.query(
@@ -125,6 +153,7 @@ export {
     readUserResponse,
     createUserResponse,
     updateUserResponse,
+    updateOrCreateUserResponse,
     deleteEventResponses,
     deleteUserResponse
 };
