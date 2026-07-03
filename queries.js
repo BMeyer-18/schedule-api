@@ -29,7 +29,7 @@ const readAllResponses = async (request, response) => {
 
 // GET: /api/v1/schedules/:event | readEventResponses()
 const readEventResponses = async (request, response) => {
-    const event = request.params.event;
+    const event = request.params.event.toLowerCase();
     try {
         const results = await pool.query(
             'SELECT * FROM schedules WHERE event = $1 ORDER BY id ASC',
@@ -43,8 +43,8 @@ const readEventResponses = async (request, response) => {
 
 // GET: /api/v1/schedules/:event/:name | readUserResponse()
 const readUserResponse = async (request, response) => {
-    const event = request.params.event;
-    const name = request.params.name;
+    const event = request.params.event.toLowerCase();
+    const name = request.params.name.toLowerCase();
     try {
         const results = await pool.query(
             'SELECT * FROM schedules WHERE event = $1 AND name = $2',
@@ -58,8 +58,9 @@ const readUserResponse = async (request, response) => {
 
 // POST: /api/v1/schedules/:event | createUserResponse()
 const createUserResponse = async (request, response) => {
-    const event = request.params.event;
-    const { name, availability } = request.body;
+    const event = request.params.event.toLowerCase();
+    const name = request.body.name.toLowerCase();
+    const availability = request.body.availability;
     try {
         const results = await pool.query(
             'INSERT INTO schedules (name, event, availability) VALUES ($1, $2, $3) RETURNING *',
@@ -73,11 +74,12 @@ const createUserResponse = async (request, response) => {
 
 // PUT: /api/v1/schedules/:event | updateUserResponse()
 const updateUserResponse = async (request, response) => {
-    const event = request.params.event;
-    const { name, availability } = request.body;
+    const event = request.params.event.toLowerCase();
+    const name = request.body.name.toLowerCase();
+    const availability = request.body.availability;
     try {
         const results = await pool.query(
-            'UPDATE schedules SET availability = $1 WHERE name = $2 AND event = $3',
+            'UPDATE schedules SET availability = $1 WHERE name = $2 AND event = $3 RETURNING *',
             [availability, name, event]
         );
         response.status(200).json({ info: `Updated user ${results.rows[0].name} for event ${results.rows[0].event}` });
@@ -88,7 +90,7 @@ const updateUserResponse = async (request, response) => {
 
 // DELETE: /api/v1/schedules/:event | deleteEventResponses()
 const deleteEventResponses = async (request, response) => {
-    const event = request.params.event;
+    const event = request.params.event.toLowerCase();
     try {
         await pool.query(
             'DELETE FROM schedules WHERE event = $1',
@@ -102,14 +104,14 @@ const deleteEventResponses = async (request, response) => {
 
 // DELETE: /api/v1/schedules/:event/:name | deleteUserResponse()
 const deleteUserResponse = async (request, response) => {
-    const event = request.params.event;
-    const name = request.params.name;
+    const event = request.params.event.toLowerCase();
+    const name = request.params.name.toLowerCase();
     try {
         await pool.query(
             'DELETE FROM schedules WHERE event = $1 AND name = $2',
             [event, name]
         );
-        response.status(200).json({ info: `Deleted user ${user} from event ${event}` });
+        response.status(200).json({ info: `Deleted user ${name} from event ${event}` });
     } catch (error) {
         throw error;
     }
