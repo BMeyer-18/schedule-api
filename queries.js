@@ -23,7 +23,7 @@ const readAllResponses = async (request, response) => {
         )
         response.status(200).json(results.rows);
     } catch (error) {
-        throw error;
+        response.status(500).json({ info: `Internal server error: ${error}` });
     }
 };
 
@@ -37,7 +37,7 @@ const readEventResponses = async (request, response) => {
         );
         response.status(200).json(results.rows);
     } catch (error) {
-        throw error;
+        response.status(500).json({ info: `Internal server error: ${error}` });
     }
 };
 
@@ -52,7 +52,7 @@ const readUserResponse = async (request, response) => {
         );
         response.status(200).json(results.rows);
     } catch (error) {
-        throw error;
+        response.status(500).json({ info: `Internal server error: ${error}` });
     }
 };
 
@@ -68,7 +68,7 @@ const createUserResponse = async (request, response) => {
         );
         response.status(201).json({ info: `User ${results.rows[0].name} added to event ${results.rows[0].event}` });
     } catch (error) {
-        throw error;
+        response.status(500).json({ info: `Internal server error: ${error}` });
     }
 };
 
@@ -90,7 +90,7 @@ const updateUserResponse = async (request, response) => {
         );
         response.status(200).json({ info: `Updated user ${results.rows[0].name} for event ${results.rows[0].event}` });
     } catch (error) {
-        throw error;
+        response.status(500).json({ info: `Internal server error: ${error}` });
     }
 };
 
@@ -112,7 +112,7 @@ const updateOrCreateUserResponse = async (request, response) => {
         );
         response.status(200).json({ info: `Updated user ${results.rows[0].name} for event ${results.rows[0].event}` });
     } catch (error) {
-        throw error;
+        response.status(500).json({ info: `Internal server error: ${error}` });
     }
 };
 
@@ -126,7 +126,7 @@ const deleteEventResponses = async (request, response) => {
         );
         response.status(200).json({ info: `Deleted all users from event ${event}` });
     } catch (error) {
-        throw error;
+        response.status(500).json({ info: `Internal server error: ${error}` });
     }
 };
 
@@ -141,7 +141,7 @@ const deleteUserResponse = async (request, response) => {
         );
         response.status(200).json({ info: `Deleted user ${name} from event ${event}` });
     } catch (error) {
-        throw error;
+        response.status(500).json({ info: `Internal server error: ${error}` });
     }
 };
 

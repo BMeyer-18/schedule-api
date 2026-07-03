@@ -1,9 +1,16 @@
 import express from 'express';
 import cors from 'cors';
+import rateLimit from 'express-rate-limit';
 import * as db from './queries.js'
 
 const app = express();
 const port = 3000;
+const apiLimiter = rateLimit({
+    windowMs: 10 * 60000,
+    max: 100,
+    standardHeaders: true,
+    legacyHeaders: false
+});
 
 app.use(express.json());
 app.use(cors());
@@ -12,6 +19,7 @@ app.use(
         extended: true
     })
 );
+app.use('/api/v1/schedules', apiLimiter);
 
 app.get('/', db.readMetaInfo);
 app.get('/api', db.readMetaInfo);
