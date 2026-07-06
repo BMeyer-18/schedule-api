@@ -61,6 +61,12 @@ const createUserResponse = async (request, response) => {
     const event = request.params.event.toLowerCase();
     const name = request.body.name.toLowerCase();
     const availability = request.body.availability;
+
+    if (availability.length !== 336) {
+        response.status(400).json({ info: "Availability of incorrect length. Should be for 336 time slots (7 days * 48 half-hour increments)." });
+        return;
+    }
+
     try {
         const results = await pool.query(
             'INSERT INTO schedules (name, event, availability) VALUES ($1, $2, $3) RETURNING *',
@@ -79,6 +85,11 @@ const updateUserResponse = async (request, response) => {
 
     if((await pool.query('SELECT * FROM schedules WHERE name = $1 AND event = $2', [name, event])).rows.length === 0) {
         response.status(404).json({ info: `user ${name} at event ${event} not found` });
+        return;
+    }
+
+    if (availability.length !== 336) {
+        response.status(400).json({ info: "Availability of incorrect length. Should be for 336 time slots (7 days * 48 half-hour increments)." });
         return;
     }
 
@@ -101,6 +112,11 @@ const updateOrCreateUserResponse = async (request, response) => {
 
     if((await pool.query('SELECT * FROM schedules WHERE name = $1 AND event = $2', [name, event])).rows.length === 0) {
         createUserResponse(request, response);
+        return;
+    }
+
+    if (availability.length !== 336) {
+        response.status(400).json({ info: "Availability of incorrect length. Should be for 336 time slots (7 days * 48 half-hour increments)." });
         return;
     }
 
