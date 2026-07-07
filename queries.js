@@ -296,7 +296,7 @@ const deleteEventPassword = async (request, response) => {
 
     try {
         await pool.query('DELETE FROM passwords WHERE event = $1 AND password = $2', [event, password]);
-        response.status(200).json({ info: `Deleted event` })
+        response.status(200).json({ info: `Deleted event ${event}` });
     } catch (error) {
         response.status(500).json({ info: `Internal server error: ${error}` });
     }
