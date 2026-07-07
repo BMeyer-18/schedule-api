@@ -68,6 +68,11 @@ const createUserResponse = async (request, response) => {
         return;
     }
 
+    if ((await pool.query('SELECT * FROM passwords WHERE event = $1', [event])).rows.length === 0) {
+        response.status(400).json({ info: `event ${event} does not exist` });
+        return;
+    }
+
     try {
         const results = await pool.query(
             'INSERT INTO schedules (name, event, availability) VALUES ($1, $2, $3) RETURNING *',
