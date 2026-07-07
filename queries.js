@@ -165,6 +165,10 @@ const deleteUserResponse = async (request, response) => {
 // PASSWORDS
 // GET: /api/v1/passwords | readAllPasswords()
 const readAllPasswords = async (request, response) => {
+    if (request.headers['admin-password'] !== process.env.DB_ADMINPASS) {
+        response.status(401).json({ info: "Access denied" });
+    }
+
     try {
         const results = await pool.query(
             'SELECT * FROM passwords'
@@ -177,6 +181,10 @@ const readAllPasswords = async (request, response) => {
 
 // GET: /api/v1/passwords/:event | readEventPassword()
 const readEventPassword = async (request, response) => {
+    if (request.headers['admin-password'] !== process.env.DB_ADMINPASS) {
+        response.status(401).json({ info: "Access denied" });
+    }
+
     const event = request.params.event.toLowerCase();
     try {
         const results = await pool.query(
