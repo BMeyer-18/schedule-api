@@ -36,6 +36,7 @@ app.delete('/api/v1/schedules/:event/:name', db.deleteUserResponse);
 
 app.get('/api/v1/passwords', db.readAllPasswords);
 app.get('/api/v1/passwords/:event', db.readEventPassword);
+app.get('/api/v1/passwords/:event/verify', db.verifyEventPassword);
 app.post('/api/v1/passwords/:event', db.createEventPassword);
 app.patch('/api/v1/passwords/:event', db.updateEventPassword);
 app.put('/api/v1/passwords/:event', db.updateEventPassword);

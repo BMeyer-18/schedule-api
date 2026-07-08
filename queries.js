@@ -202,6 +202,33 @@ const readEventPassword = async (request, response) => {
     }
 };
 
+//GET /api/v1/passwords/:event/verify | verifyEventPassword()
+const verifyEventPassword = async (request, response) => {
+    const event = request.params.event.toLowerCase();
+    if (event.length === 0) {
+        response.status(400).json({ info: "Event name must be included in URL" });
+        return;
+    }
+    const password = request.headers['password'];
+    if (password.length === 0) {
+        response.status(400).json({ info: "Password must be included in body" });
+        return;
+    }
+    try {
+        const results = await pool.query(
+            'SELECT * FROM passwords WHERE event = $1 AND password = $2',
+            [event, password]
+        );
+        if (results.rows.length === 0) {
+            response.status(400).json({ info: "Wrong event or password" });
+        } else {
+            response.status(200).json({ info: "Authentication successful" });
+        }
+    } catch (error) {
+        response.status(500).json({ info: `Internal server error: ${error}` });
+    }
+};
+
 // POST: /api/v1/passwords/:event | createEventPassword()
 const createEventPassword = async (request, response) => {
     const event = request.params.event.toLowerCase();
@@ -316,6 +343,7 @@ export {
 
     readAllPasswords,
     readEventPassword,
+    verifyEventPassword,
     createEventPassword,
     updateEventPassword,
     deleteEventPassword,
