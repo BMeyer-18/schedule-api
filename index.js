@@ -34,13 +34,13 @@ app.put('/api/v1/schedules/:event', db.updateOrCreateUserResponse);
 app.delete('/api/v1/schedules/:event', db.deleteEventResponses);
 app.delete('/api/v1/schedules/:event/:name', db.deleteUserResponse);
 
-app.get('/api/v1/passwords', db.readAllPasswords);
-app.get('/api/v1/passwords/:event', db.readEventPassword);
-app.get('/api/v1/passwords/:event/verify', db.verifyEventPassword);
-app.post('/api/v1/passwords/:event', db.createEventPassword);
-app.patch('/api/v1/passwords/:event', db.updateEventPassword);
-app.put('/api/v1/passwords/:event', db.updateEventPassword);
-app.delete('/api/v1/passwords/:event', db.deleteEventPassword);
+app.get('/api/v1/events', db.readAllEvents);
+app.get('/api/v1/events/:event', db.readEventInfo);
+app.get('/api/v1/events/:event/verify', db.verifyEventPassword);
+app.post('/api/v1/events/:event', db.createEventInfo);
+app.patch('/api/v1/events/:event', db.updateEventInfo);
+app.put('/api/v1/events/:event', db.updateEventInfo);
+app.delete('/api/v1/events/:event', db.deleteEventInfo);
 
 app.listen(port, () => {
     console.log(`App running on port ${port}.`)

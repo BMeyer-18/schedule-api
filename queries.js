@@ -20,7 +20,7 @@ const readMetaInfo = async (request, response) => {
 const readAllResponses = async (request, response) => {
     try {
         const results = await pool.query(
-            'SELECT * FROM schedules ORDER BY id ASC'
+            'SELECT * FROM schema."schedules"'
         )
         response.status(200).json(results.rows);
     } catch (error) {
@@ -33,7 +33,7 @@ const readEventResponses = async (request, response) => {
     const event = request.params.event.toLowerCase();
     try {
         const results = await pool.query(
-            'SELECT * FROM schedules WHERE event = $1 ORDER BY id ASC',
+            'SELECT * FROM schema."schedules" WHERE event = $1',
             [event]
         );
         response.status(200).json(results.rows);
@@ -48,7 +48,7 @@ const readUserResponse = async (request, response) => {
     const name = request.params.name.toLowerCase();
     try {
         const results = await pool.query(
-            'SELECT * FROM schedules WHERE event = $1 AND name = $2',
+            'SELECT * FROM schema."schedules" WHERE event = $1 AND name = $2',
             [event, name]
         );
         response.status(200).json(results.rows);
@@ -68,14 +68,14 @@ const createUserResponse = async (request, response) => {
         return;
     }
 
-    if ((await pool.query('SELECT * FROM passwords WHERE event = $1', [event])).rows.length === 0) {
+    if ((await pool.query('SELECT * FROM schema."events" WHERE event = $1', [event])).rows.length === 0) {
         response.status(400).json({ info: `event ${event} does not exist` });
         return;
     }
 
     try {
         const results = await pool.query(
-            'INSERT INTO schedules (name, event, availability) VALUES ($1, $2, $3) RETURNING *',
+            'INSERT INTO schema."schedules" (name, event, availability) VALUES ($1, $2, $3) RETURNING *',
             [name, event, availability]
         );
         response.status(201).json({ info: `User ${results.rows[0].name} added to event ${results.rows[0].event}` });
@@ -89,7 +89,7 @@ const updateUserResponse = async (request, response) => {
     const event = request.params.event.toLowerCase();
     const name = request.body.name.toLowerCase();
 
-    if((await pool.query('SELECT * FROM schedules WHERE name = $1 AND event = $2', [name, event])).rows.length === 0) {
+    if((await pool.query('SELECT * FROM schema."schedules" WHERE name = $1 AND event = $2', [name, event])).rows.length === 0) {
         response.status(404).json({ info: `user ${name} at event ${event} not found` });
         return;
     }
@@ -102,7 +102,7 @@ const updateUserResponse = async (request, response) => {
     const availability = request.body.availability;
     try {
         const results = await pool.query(
-            'UPDATE schedules SET availability = $1 WHERE name = $2 AND event = $3 RETURNING *',
+            'UPDATE schema."schedules" SET availability = $1 WHERE name = $2 AND event = $3 RETURNING *',
             [availability, name, event]
         );
         response.status(200).json({ info: `Updated user ${results.rows[0].name} for event ${results.rows[0].event}` });
@@ -116,7 +116,7 @@ const updateOrCreateUserResponse = async (request, response) => {
     const event = request.params.event.toLowerCase();
     const name = request.body.name.toLowerCase();
 
-    if((await pool.query('SELECT * FROM schedules WHERE name = $1 AND event = $2', [name, event])).rows.length === 0) {
+    if((await pool.query('SELECT * FROM schema."schedules" WHERE name = $1 AND event = $2', [name, event])).rows.length === 0) {
         createUserResponse(request, response);
         return;
     }
@@ -129,7 +129,7 @@ const updateOrCreateUserResponse = async (request, response) => {
 
     try {
         const results = await pool.query(
-            'UPDATE schedules SET availability = $1 WHERE name = $2 AND event = $3 RETURNING *',
+            'UPDATE schema."schedules" SET availability = $1 WHERE name = $2 AND event = $3 RETURNING *',
             [availability, name, event]
         );
         response.status(200).json({ info: `Updated user ${results.rows[0].name} for event ${results.rows[0].event}` });
@@ -143,7 +143,7 @@ const deleteEventResponses = async (request, response) => {
     const event = request.params.event.toLowerCase();
     try {
         await pool.query(
-            'DELETE FROM schedules WHERE event = $1',
+            'DELETE FROM schema."schedules" WHERE event = $1',
             [event]
         );
         response.status(200).json({ info: `Deleted all users from event ${event}` });
@@ -158,7 +158,7 @@ const deleteUserResponse = async (request, response) => {
     const name = request.params.name.toLowerCase();
     try {
         await pool.query(
-            'DELETE FROM schedules WHERE event = $1 AND name = $2',
+            'DELETE FROM schema."schedules" WHERE event = $1 AND name = $2',
             [event, name]
         );
         response.status(200).json({ info: `Deleted user ${name} from event ${event}` });
@@ -167,16 +167,16 @@ const deleteUserResponse = async (request, response) => {
     }
 };
 
-// PASSWORDS
-// GET: /api/v1/passwords | readAllPasswords()
-const readAllPasswords = async (request, response) => {
+// EVENTS
+// GET: /api/v1/events | readAllEvents()
+const readAllEvents = async (request, response) => {
     if (request.headers['admin-password'] !== process.env.DB_ADMINPASS) {
         response.status(401).json({ info: "Access denied" });
     }
 
     try {
         const results = await pool.query(
-            'SELECT * FROM passwords'
+            'SELECT * FROM schema."events"'
         )
         response.status(200).json(results.rows);
     } catch (error) {
@@ -184,8 +184,8 @@ const readAllPasswords = async (request, response) => {
     }
 };
 
-// GET: /api/v1/passwords/:event | readEventPassword()
-const readEventPassword = async (request, response) => {
+// GET: /api/v1/events/:event | readEventInfo()
+const readEventInfo = async (request, response) => {
     if (request.headers['admin-password'] !== process.env.DB_ADMINPASS) {
         response.status(401).json({ info: "Access denied" });
     }
@@ -193,7 +193,7 @@ const readEventPassword = async (request, response) => {
     const event = request.params.event.toLowerCase();
     try {
         const results = await pool.query(
-            'SELECT * FROM passwords WHERE event = $1',
+            'SELECT * FROM schema."events" WHERE event = $1',
             [event]
         );
         response.status(200).json(results.rows);
@@ -202,7 +202,7 @@ const readEventPassword = async (request, response) => {
     }
 };
 
-//GET /api/v1/passwords/:event/verify | verifyEventPassword()
+//GET /api/v1/events/:event/verify | verifyEventPassword()
 const verifyEventPassword = async (request, response) => {
     const event = request.params.event.toLowerCase();
     if (event.length === 0) {
@@ -216,7 +216,7 @@ const verifyEventPassword = async (request, response) => {
     }
     try {
         const results = await pool.query(
-            'SELECT * FROM passwords WHERE event = $1 AND password = $2',
+            'SELECT * FROM schema."events" WHERE event = $1 AND password = $2',
             [event, password]
         );
         if (results.rows.length === 0) {
@@ -229,14 +229,14 @@ const verifyEventPassword = async (request, response) => {
     }
 };
 
-// POST: /api/v1/passwords/:event | createEventPassword()
-const createEventPassword = async (request, response) => {
+// POST: /api/v1/events/:event | createEventInfo()
+const createEventInfo = async (request, response) => {
     const event = request.params.event.toLowerCase();
     if (event.length === 0) {
         response.status(400).json({ info: "Event name must be included in URL" });
         return;
     }
-    if((await pool.query('SELECT * FROM passwords WHERE event = $1', [event])).rows.length > 0) {
+    if((await pool.query('SELECT * FROM schema."events" WHERE event = $1', [event])).rows.length > 0) {
         response.status(400).json({ info: `Event with name ${event} already exists` });
         return;
     }
@@ -249,7 +249,7 @@ const createEventPassword = async (request, response) => {
 
     try {
         const results = await pool.query(
-            'INSERT INTO passwords (event, password) VALUES ($1, $2) RETURNING *',
+            'INSERT INTO schema."events" (event, password) VALUES ($1, $2) RETURNING *',
             [event, password]
         );
         response.status(201).json({ info: `Event ${results.rows[0].event} added with your password` });
@@ -258,14 +258,14 @@ const createEventPassword = async (request, response) => {
     }
 };
 
-// PATCH & PUT: /api/v1/passwords/:event | updateEventPassword()
-const updateEventPassword = async (request, response) => {
+// PATCH & PUT: /api/v1/events/:event | updateEventInfo()
+const updateEventInfo = async (request, response) => {
     const event = request.params.event.toLowerCase();
     if (event.length === 0) {
         response.status(400).json({ info: "Event name must be included in URL" });
         return;
     }
-    if((await pool.query('SELECT * FROM passwords WHERE event = $1', [event])).rows.length === 0) {
+    if((await pool.query('SELECT * FROM schema."events" WHERE event = $1', [event])).rows.length === 0) {
         response.status(404).json({ info: `Event ${event} not found` });
         return;
     }
@@ -281,7 +281,7 @@ const updateEventPassword = async (request, response) => {
         return;
     }
 
-    const getResponse = await pool.query('SELECT * FROM passwords WHERE event = $1', [event]);
+    const getResponse = await pool.query('SELECT * FROM schema."events" WHERE event = $1', [event]);
     if (getResponse.rows.length === 0) {
         response.status(404).json({ info: `Event ${event} not found` });
         return;
@@ -293,7 +293,7 @@ const updateEventPassword = async (request, response) => {
 
     try {
         const results = await pool.query(
-            'UPDATE passwords SET password = $1 WHERE event = $2 RETURNING *',
+            'UPDATE schema."events" SET password = $1 WHERE event = $2 RETURNING *',
             [newPassword, event]
         );
         response.status(200).json({ info: `Event ${results.rows[0].event} added with your password` });
@@ -302,15 +302,15 @@ const updateEventPassword = async (request, response) => {
     }
 };
 
-// DELETE: /api/v1/passwords/:event | deleteEventPassword()
-const deleteEventPassword = async (request, response) => {
+// DELETE: /api/v1/events/:event | deleteEventInfo()
+const deleteEventInfo = async (request, response) => {
     const event = request.params.event.toLowerCase();
     if (event.length === 0) {
         response.status(400).json({ info: "Event name must be included in URL" });
         return;
     }
 
-    const getResponse = await pool.query('SELECT * FROM passwords WHERE event = $1', [event]);
+    const getResponse = await pool.query('SELECT * FROM schema."events" WHERE event = $1', [event]);
     if (getResponse.rows.length === 0) {
         response.status(404).json({ info: `Event ${event} not found` });
         return;
@@ -322,7 +322,7 @@ const deleteEventPassword = async (request, response) => {
     }
 
     try {
-        await pool.query('DELETE FROM passwords WHERE event = $1 AND password = $2', [event, password]);
+        await pool.query('DELETE FROM schema."events" WHERE event = $1 AND password = $2', [event, password]);
         response.status(200).json({ info: `Deleted event ${event}` });
     } catch (error) {
         response.status(500).json({ info: `Internal server error: ${error}` });
@@ -341,10 +341,10 @@ export {
     deleteEventResponses,
     deleteUserResponse,
 
-    readAllPasswords,
-    readEventPassword,
+    readAllEvents,
+    readEventInfo,
     verifyEventPassword,
-    createEventPassword,
-    updateEventPassword,
-    deleteEventPassword,
+    createEventInfo,
+    updateEventInfo,
+    deleteEventInfo,
 };
