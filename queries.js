@@ -63,8 +63,8 @@ const createUserResponse = async (request, response) => {
     const name = request.body.name.toLowerCase();
     const availability = request.body.availability;
 
-    if (availability.length !== 336) {
-        response.status(400).json({ info: "Availability of incorrect length. Should be for 336 time slots (7 days * 48 half-hour increments)." });
+    if (availability.length !== 224) {
+        response.status(400).json({ info: "Availability of incorrect length. Should be for 224 time slots (7 days * 48 half-hour increments)." });
         return;
     }
 
@@ -94,8 +94,8 @@ const updateUserResponse = async (request, response) => {
         return;
     }
 
-    if (availability.length !== 336) {
-        response.status(400).json({ info: "Availability of incorrect length. Should be for 336 time slots (7 days * 48 half-hour increments)." });
+    if (availability.length !== 224) {
+        response.status(400).json({ info: "Availability of incorrect length. Should be for 224 time slots (7 days * 48 half-hour increments)." });
         return;
     }
 
@@ -122,8 +122,8 @@ const updateOrCreateUserResponse = async (request, response) => {
     }
 
     const availability = request.body.availability;
-    if (availability.length !== 336) {
-        response.status(400).json({ info: "Availability of incorrect length. Should be for 336 time slots (7 days * 48 half-hour increments)." });
+    if (availability.length !== 224) {
+        response.status(400).json({ info: "Availability of incorrect length. Should be for 224 time slots (7 days * 48 half-hour increments)." });
         return;
     }
 
