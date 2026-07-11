@@ -6,7 +6,7 @@ import * as db from './queries.js'
 const app = express();
 const port = 3000;
 const apiLimiter = rateLimit({
-    windowMs: 10 * 60000,
+    windowMs: 60000,
     max: 100,
     standardHeaders: true,
     legacyHeaders: false
