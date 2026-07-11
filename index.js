@@ -7,7 +7,7 @@ const app = express();
 const port = 3000;
 const apiLimiter = rateLimit({
     windowMs: 60000,
-    max: 100,
+    max: 50,
     standardHeaders: true,
     legacyHeaders: false
 });
