@@ -64,7 +64,7 @@ const createUserResponse = async (request, response) => {
     const availability = request.body.availability;
 
     if (availability.length !== 224) {
-        response.status(400).json({ info: "Availability of incorrect length. Should be for 224 time slots (7 days * 48 half-hour increments)." });
+        response.status(400).json({ info: "Availability of incorrect length. Should be for 224 time slots (7 days * 32 half-hour increments)." });
         return;
     }
 
@@ -95,7 +95,7 @@ const updateUserResponse = async (request, response) => {
     }
 
     if (availability.length !== 224) {
-        response.status(400).json({ info: "Availability of incorrect length. Should be for 224 time slots (7 days * 48 half-hour increments)." });
+        response.status(400).json({ info: "Availability of incorrect length. Should be for 224 time slots (7 days * 32 half-hour increments)." });
         return;
     }
 
@@ -123,7 +123,7 @@ const updateOrCreateUserResponse = async (request, response) => {
 
     const availability = request.body.availability;
     if (availability.length !== 224) {
-        response.status(400).json({ info: "Availability of incorrect length. Should be for 224 time slots (7 days * 48 half-hour increments)." });
+        response.status(400).json({ info: "Availability of incorrect length. Should be for 224 time slots (7 days * 32 half-hour increments)." });
         return;
     }
 
@@ -141,6 +141,12 @@ const updateOrCreateUserResponse = async (request, response) => {
 // DELETE: /api/v1/schedules/:event | deleteEventResponses()
 const deleteEventResponses = async (request, response) => {
     const event = request.params.event.toLowerCase();
+
+    if((await pool.query('SELECT * FROM schema."schedules" WHERE event = $1', [event])).rows.length === 0) {
+        response.status(404).json({ info: `Event ${event} not found` });
+        return;
+    }
+
     try {
         await pool.query(
             'DELETE FROM schema."schedules" WHERE event = $1',
@@ -156,6 +162,12 @@ const deleteEventResponses = async (request, response) => {
 const deleteUserResponse = async (request, response) => {
     const event = request.params.event.toLowerCase();
     const name = request.params.name.toLowerCase();
+
+    if((await pool.query('SELECT * FROM schema."schedules" WHERE event = $1 AND name = $2', [event, name])).rows.length === 0) {
+        response.status(404).json({ info: `Response from user ${name} for event ${event} not found` });
+        return;
+    }
+
     try {
         await pool.query(
             'DELETE FROM schema."schedules" WHERE event = $1 AND name = $2',
